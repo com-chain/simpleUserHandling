@@ -1,7 +1,10 @@
-This is a (too-)simple CRM which allow to register members for a currency and create the account-creation autorization code.
-In the future the creation of the authorization code (and its signature with the PK of the currency) should be integrated at a full CRM. In the meantime, this tool allows to enrol users.
+# Simple User Handling:
 
-Details bellow (in French)
+This is a (too-)simple CRM which allow to register members for a currency and create the account-creation autorization code.
+In the future the creation of the authorization code (and its signature with the PK of the currency) should be integrated in
+a full CRM. In the meantime, this tool allows to enrol users.
+
+# Details bellow (in French)
 
 Pour faire fonctionner:
 
