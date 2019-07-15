@@ -20,8 +20,14 @@ function sendMail($to,$nom,$prenom,$code){
      mail($to, $subject, $message, $headers);
 }
 
-
+  // edit membre
+  
+  if (isset($_GET['code']) && isset($_GET['editmail'])){
+    $db->updateMember($_GET['code'],$_GET['editmail']);  
+  } else 
+  
   // Add membre
+  
   if (isset($_GET['addnom']) && isset($_GET['addprenom'])) {
      $code = $db->insertMember($_GET['addprenom'],$_GET['addnom'],$_GET['addmail']);  
      
@@ -112,7 +118,14 @@ echo'
                 <td>'.$prenom.'</td>
                 <td ><a href="mailto:'.$EMail.'?subject='.getMailSubject().'&body='.getMailText($nom, $prenom, $code).'">'.$EMail.'</a></td>
                 <td >'.$code.'</td>
-                <td >'."<a class=\"pgeBtn\" href='pdf.php?id=" . $code . "&nom=" . $prenom . " " . $nom . "' target=\"_blank\" >PDF</a> </td> 
+                <td >'."<a class=\"pgeBtn\" href='pdf.php?id=$code' target=\"_blank\" >PDF</a> 
+                <a class=\"pgeBtn\" href='.' 
+                   onclick=\"toggleClass(document.getElementById('edit_pop'),'pop_h');
+                             document.getElementById('edit_code').value='$code';
+                             document.getElementById('edit_prenom').value='$prenom';
+                             document.getElementById('edit_nom').value='$nom';
+                             document.getElementById('edit_mail').value='$EMail';
+                             return false;\">Edit</a> </td> 
             </tr>";
      
      }
@@ -143,6 +156,31 @@ echo'
              <span class="form_btnBar right"> 
                <a class="pgeBtn" href="." onclick="toggleClass(document.getElementById(\'add_pop\'),\'pop_h\');return false;">Annuler</a>
                <input class="pgeBtn" type="submit" value="Ajouter">
+             </span> 
+       </form>
+        </div>
+    </div>
+    
+    <div class="pop_la pop_h" id="edit_pop">
+       <div class="pop_ct">
+         <span class="blk_title"> Editer l\'email d\'un membre </span>
+           <form method="get" action="start.php">
+            <input type="hidden"   name="code" id="edit_code" readonly/>
+            <span class="form_item">
+               <span class="label">Pr&eacute;nom :</span>
+               <input type="text" class="inputText" id="edit_prenom" readonly/> 
+             </span>
+             <span class="form_item">
+               <span class="label">nom :</span>
+               <input type="text" class="inputText" id="edit_nom" readonly/> 
+             </span>
+             <span class="form_item">
+               <span class="label">e-mail :</span>
+               <input type="text" class="inputText" id="edit_mail" name="editmail" required/> 
+             </span>
+             <span class="form_btnBar right"> 
+               <a class="pgeBtn" href="." onclick="toggleClass(document.getElementById(\'edit_pop\'),\'pop_h\');return false;">Annuler</a>
+               <input class="pgeBtn" type="submit" value="Enregistrer">
              </span> 
        </form>
         </div>

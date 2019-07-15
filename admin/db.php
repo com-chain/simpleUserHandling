@@ -10,32 +10,37 @@ include 'connectionFactory.php';
          $this->close();
       }
       
-      public function hasMember($code) {
-        $sql ="SELECT Code from Membres where Code = '$code' ";   
-        $ret = $this->query($sql);   
-        $row = $ret->fetchArray(SQLITE3_ASSOC); 
-        return $row["Code"]==$code;
-      }
-      
       public function insertMember($first,$last,$mail) {
         $addnom=$last;
         $addprenom=$first;
         $addemail=$mail;
         $code=md5($addnom . $addprenom);
-        $sql ="INSERT INTO Membres(Id, Nom, Prenom, Email, Code, Count) values (\"$code\", \"$addnom\", \"$addprenom\", \"$addemail\", \"$code\", 0)";
+        $sql ="INSERT INTO Membres(Id, Nom, Prenom, Adresses, Code, Count) values (\"$code\", \"$addnom\", \"$addprenom\", \"$addemail\", \"$code\", 0)";
         $ret = $this->query($sql);
         return  $code;
+      }
+      
+      public function updateMember($Code, $mail) {
+        $sql ="UPDATE Membres SET Adresses=\"$mail\" WHERE Code=\"$Code\"";
+        $ret = $this->query($sql);
+      }
+      
+      public function validMember($Code) {
+        $sql ="SELECT Nom, Prenom, Code from Membres where Code=\"$Code\" ";
+        $ret = $this->query($sql);
+        $row = $ret->fetchArray(SQLITE3_ASSOC);
+        return array("code"=>$row['Code'], "Valid"=>($row['Code']==$Code), "Name"=>($row['Prenom']." ".$row['Nom']));
       }
       
       
       public function getList($filter_first,$filter_last) {
         $filter_prenom = $filter_first."%";
         $filter_nom = $filter_last."%";
-        $sql ="SELECT * from Membres where Nom LIKE '$filter_nom' and Prenom LIKE '$filter_prenom' ";     
+        $sql ="SELECT Nom, Prenom, Adresses, Code from Membres where Nom LIKE '$filter_nom' and Prenom LIKE '$filter_prenom' ";     
         $ret = $this->query($sql);
         $result = array();
         while($row = $ret->fetchArray(SQLITE3_ASSOC) ){
-            $sub = array("Nom"=>$row['Nom'], "Pernom"=>$row['Prenom'], "Email"=>$row['Email'] ,"Code"=>$row['Code'] );
+            $sub = array("Nom"=>$row['Nom'], "Pernom"=>$row['Prenom'], "Email"=>$row['Adresses'] ,"Code"=>$row['Code'] );
             array_push($result,$sub);
         }
         
@@ -114,15 +119,6 @@ include 'connectionFactory.php';
        $this->$mysqli =  ConnectionFactory::GetConnection();
       }
       
-       public function hasMember($code) {
-        $stmt = $this->$mysqli->prepare("SELECT Code from Membres where Code = ?");
-        $stmt->bind_param("s",$code );
-        $stmt->bind_result($rescode);
-        $stmt->execute();
-        $result = array();
-        return $stmt->fetch();
-      }
-      
       
       public function insertMember($first,$last,$mail) {
         $addnom=$last;
@@ -135,6 +131,26 @@ include 'connectionFactory.php';
         $stmt->close();
         return  $code;
       }
+      
+      public function updateMember($Code, $mail) {
+         $stmt = $this->$mysqli->prepare("UPDATE Membres SET EMail=? WHERE Code=?");
+         $stmt->bind_param("ss", $mail, $Code);
+           
+         $stmt->execute();
+      }
+      
+        public function validMember($code) {
+        $stmt = $this->$mysqli->prepare("SELECT Nom, Prenom, Code FROM MonnaieMembers WHERE Code=?");
+        $stmt->bind_param("s", $code);
+        $stmt->bind_result($nom,$prenom,$res_code);
+        $stmt->execute();
+        $result = array( "Valid"=>False);
+        while ($stmt->fetch()){
+            $result = array("code"=>$res_code, "Valid"=>($res_code==$Code), "Name"=>($prenom." ".$nom));
+        }
+        return $result;
+      }
+      
       
       
       public function getList($filter_first,$filter_last) {
